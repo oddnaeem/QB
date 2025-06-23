@@ -1,107 +1,156 @@
 <!DOCTYPE html>
 <html lang="bn">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>প্রশ্নব্যাংক</title>
-<style>
-  body {
-    font-family: "SolaimanLipi", Arial, sans-serif;
-    background: #f9f9f9;
-    color: #222;
-    margin: 0; padding: 0;
-  }
-  .container {
-    max-width: 800px;
-    margin: 2rem auto;
-    background: white;
-    padding: 2rem;
-    box-shadow: 0 0 10px rgba(0,0,0,0.1);
-    border-radius: 8px;
-  }
-  h1 {
-    text-align: center;
-    margin-bottom: 1rem;
-  }
-  .question {
-    margin-bottom: 2rem;
-  }
-  .question h2 {
-    font-size: 1.2rem;
-    margin-bottom: 0.5rem;
-  }
-  ul.options {
-    list-style: none;
-    padding-left: 0;
-  }
-  ul.options li {
-    margin-bottom: 0.5rem;
-  }
-  .answer {
-    margin-top: 0.5rem;
-    font-weight: 600;
-    color: #2c7;
-  }
-  @media (max-width: 600px) {
-    .container {
-      margin: 1rem;
-      padding: 1rem;
+  <meta charset="UTF-8">
+  <title>প্রশ্নব্যাংক</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      max-width: 600px;
+      margin: auto;
     }
-  }
-</style>
+
+    button {
+      padding: 10px;
+      width: 100%;
+      margin-top: 10px;
+    }
+
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      justify-content: center;
+      align-items: center;
+      z-index: 10;
+    }
+
+    .modal-content {
+      background: white;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 10px;
+      margin-top: 10px;
+    }
+
+    .question {
+      margin-top: 20px;
+      padding: 10px;
+      border: 1px solid #ccc;
+    }
+  </style>
 </head>
 <body>
-<div class="container">
-  <h1>প্রশ্নব্যাংক: সাধারণ গণিত</h1>
-  <div id="questions"></div>
-</div>
 
-<script>
-  const examData = {
-    "exam": {
-      "name": "B unit (অ-বাণিজ্য শাখা) শিফট-২ (২০২৩-২০২৪)",
-      "date": "07-03-2024",
-      "subject": "সাধারণ গণিত",
-      "questions": [
-        {"id":1,"question":"A হল B এর দক্ষিণে, B হল C এর পশ্চিমে। তাহলে A, C এর কোনদিকে থাকবে?","options":["দক্ষিণে","উত্তর-পশ্চিমে","উত্তর-পূর্বে","দক্ষিণ-পশ্চিমে"],"answer":"দক্ষিণে"},
-        {"id":2,"question":"প্রতি ঘণ্টায় কতবার ঘড়ির মিনিটের এবং ঘণ্টার কাঁটা পরস্পর লম্বভাবে অবস্থান করে?","options":["2 বার","1 বার","4 বার","৩ বার"],"answer":"২ বার"},
-        {"id":3,"question":"এক ব্যক্তি ও তার স্ত্রীর সাত ছেলে আছে। প্রত্যেক ছেলের একজন করে বোন থাকলে ঐ পরিবারের সদস্য সংখ্যা কত?","options":["৪ জন","১০ জন","১৬ জন","৯ জন"],"answer":"১০ জন"},
-        {"id":4,"question":"৫০টি বলের মধ্যে ৩৫টিতে লাল দাগ, ২০টিতে নীল দাগ এবং ১২টিতে লাল ও নীল উভয় দাগ রয়েছে। কতটি বলের লাল বা নীল দাগ নেই?","options":["৫","৮","৭","৪"],"answer":"৫"},
-        {"id":5,"question":"তিনটি সংখ্যার যোগফল ৯৮। প্রথম ও দ্বিতীয় সংখ্যার অনুপাত ২:৩ এবং দ্বিতীয় ও তৃতীয় সংখ্যার অনুপাত ৫:৮। দ্বিতীয় সংখ্যাটি-","options":["৩০","১০","১৫","২৪"],"answer":"৩০"},
-        {"id":6,"question":"সিরিজটি সম্পূর্ণ কর: ২, ৫, ৯, ১৯, ৩৭........","options":["৭৭","৭৩","৭৫","৭৪"],"answer":"৭৭"},
-        {"id":7,"question":"দুইজন লোক পরস্পর বিপরীত দিকে হাঁটছিল। উভয়েই ৬ মাইল সামনের দিকে হাঁটল এবং তারপর ডানদিকে ঘুরল এবং ৮ মাইল হাঁটল। এখন তাদের মধ্যে দূরত্ব কত?","options":["১৪ মাইল","২০ মাইল","১৮ মাইল","২৮ মাইল"],"answer":"১৪ মাইল"},
-        {"id":8,"question":"এক ব্যক্তির বর্তমান বয়স তার মায়ের বয়সের দুই-পঞ্চমাংশ। ৮ বছর পর তাদের বয়সের অনুপাত ১:২। ২৪ বছর পরে সন্তান ও মায়ের বয়সের অনুপাত-","options":["২:৫","৩:৫","১১:১৭","৫:৮"],"answer":"২:৫"},
-        {"id":9,"question":"পরীক্ষায় পাসের নম্বর ৪০%। যদি একজন পরীক্ষার্থী ১৭৮ নম্বর পেয়ে ২২ নম্বরের জন্য ফেল করে, তবে পরীক্ষায় সে শতকরা কত নম্বর পেয়েছে?","options":["৩৫.৬০","৩৬.৫০","১১.০০","২২.০০"],"answer":"৩৫.৬০"},
-        {"id":10,"question":"একটি আয়তাকার বাগানের ক্ষেত্রফল কত শতাংশ বৃদ্ধি পাবে যদি বাগানের দৈর্ঘ্য ও প্রস্থ উভয়ই ৩০% বৃদ্ধি করা হয়?","options":["৩০%","৯০%","২৭%","৬৯%"],"answer":"৯০%"},
-        {"id":11,"question":"প্রতিটি গাছের চারার মূল্য ১৫০ টাকা। বর্গাকার একটি পুকুরের প্রতি ধারে ১০টি করে চারা রোপন করা হবে যার মোট মজুরী ১,০০০ টাকা ও পরিবহন ব্যয় ৮০০ টাকা হলে, প্রতিটি গাছের জন্য গড় ব্যয় কত?","options":["৮ ১৫০","৮ ২০০","৮ ১৯৫","৮ ১৬৮"],"answer":"৮ ২০০"},
-        {"id":12,"question":"ভোজ অনুষ্ঠানে যাওয়ার জন্য ৫,৭০০ টাকায় একটি বাস ভাড়া করা হয়েছিল। শর্ত হলো সব যাত্রী সমান ভাড়া বহন করবে। ৫ জন যাত্রী না আসায় মাথাপিছু ভাড়া ৩ টাকা বেড়ে গেল। বাসে কতজন যাত্রী ছিল?","options":["৯৫","৯০","৮৫","৮৮"],"answer":"৯০"},
-        {"id":13,"question":"১০০ টাকায় ৫০টি চকলেট ক্রয় করে ১০০ টাকায় ৬০টি চকলেট বিক্রয় করলে হয়।","options":["২০% ক্ষতি","১৬.৬৭% ক্ষতি","১৫% ক্ষতি","২০% লাভ"],"answer":"১৬.৬৭% ক্ষতি"},
-        {"id":14,"question":"একটি দুই অঙ্কবিশিষ্ট সংখ্যার অঙ্কগুলির গুণফল ১২। সংখ্যাটি থেকে ৯ বিয়োগ করা হলে, অঙ্কগুলি স্থানান্তরিত হয়। সংখ্যাটির দ্বিগুন কত হবে?","options":["৩৪","৪৩","২৬","৮৬"],"answer":"৪৩"},
-        {"id":15,"question":"পরপর দু'টি বিজোড় সংখ্যার বর্গের পার্থক্য ৫৬ হলে, সংখ্যা দু'টির যোগফল কত?","options":["২৮","৩৪","৩০","৩২"],"answer":"৩৪"},
-        {"id":16,"question":"চিনির দাম ৬০% বেড়ে যাওয়ায় চিনির মোট খরচ আগের স্তরে রাখতে চিনির ব্যবহার কত কমাতে হবে?","options":["৬০%","৩৩.৩%","৩৭.৫০%","৮০%"],"answer":"৩৭.৫০%"},
-        {"id":17,"question":"ল্যাম্প ক ল্যাম্প খ এর চেয়ে কম উজ্জ্বল, ল্যাম্প খ ল্যাম্প গ এর চেয়ে বেশি উজ্জ্বল। ল্যাম্প গ ল্যাম্প ঘ এর মতো উজ্জ্বল। ল্যাম্প গ ল্যাম্প ক এর চেয়ে বেশি উজ্জ্বল। কোন ল্যাম্প সবচেয়ে বেশি উজ্জ্বল?","options":["ল্যাম্প ক","ল্যাম্প গ","ল্যাম্প খ","ল্যাম্প ঘ"],"answer":"ল্যাম্প গ"},
-        {"id":18,"question":"x + y = 10, x² - y² = 10 হলে, 12xy = ?","options":["২৪.৭৫","২৯৭","২৪৭.৫","২৪৭"],"answer":"২৪৭.৫"},
-        {"id":19,"question":"BCDE একটি বর্গক্ষেত্র হলে, ADE - এর পরিসীমা কত মিটার?","options":["২৩.২৬","১৫.২৬","৩৬.২৬","২৮.২৬"],"answer":"২৩.২৬"},
-        {"id":20,"question":"A থেকে C - এর দূরত্ব কত স্কেল?","options":["৭","৭","৭","৭"],"answer":"৭"}
-      ]
+  <h2>প্রশ্নব্যাংক</h2>
+
+  <button onclick="openModal()">➕ প্রশ্ন তৈরি করুন</button>
+  <button onclick="downloadJSON()">⬇️ JSON ফাইল ডাউনলোড</button>
+
+  <div id="questionList"></div>
+
+  <!-- ✅ প্রশ্ন তৈরির জন্য পপআপ ফর্ম -->
+  <div class="modal" id="modal">
+    <div class="modal-content">
+      <h3>নতুন প্রশ্ন যোগ করুন</h3>
+      <input type="text" id="questionText" placeholder="প্রশ্ন লিখুন">
+      <input type="text" id="option1" placeholder="অপশন ১">
+      <input type="text" id="option2" placeholder="অপশন ২">
+      <input type="text" id="option3" placeholder="অপশন ৩">
+      <input type="text" id="option4" placeholder="অপশন ৪">
+
+      <select id="correctAnswer">
+        <option value="" disabled selected>সঠিক উত্তর নির্বাচন করুন</option>
+        <option value="1">অপশন ১</option>
+        <option value="2">অপশন ২</option>
+        <option value="3">অপশন ৩</option>
+        <option value="4">অপশন ৪</option>
+      </select>
+
+      <button onclick="addQuestion()">✅ সংরক্ষণ</button>
+      <button onclick="closeModal()">❌ বাতিল</button>
+    </div>
+  </div>
+
+  <script>
+    const questions = [];
+
+    function openModal() {
+      document.getElementById("modal").style.display = "flex";
     }
-  };
 
-  function createQuestionHTML(q) {
-    const optionsHTML = q.options.map(opt => `<li>${opt}</li>`).join('');
-    return `
-      <div class="question">
-        <h2>প্রশ্ন ${q.id}: ${q.question}</h2>
-        <ul class="options">${optionsHTML}</ul>
-        <div class="answer">সঠিক উত্তর: ${q.answer}</div>
-      </div>
-    `;
-  }
+    function closeModal() {
+      document.getElementById("modal").style.display = "none";
+      clearForm();
+    }
 
-  const container = document.getElementById('questions');
-  examData.exam.questions.forEach(q => {
-    container.insertAdjacentHTML('beforeend', createQuestionHTML(q));
-  });
-</script>
+    function addQuestion() {
+      const question = document.getElementById("questionText").value;
+      const options = [
+        document.getElementById("option1").value,
+        document.getElementById("option2").value,
+        document.getElementById("option3").value,
+        document.getElementById("option4").value
+      ];
+      const correct = parseInt(document.getElementById("correctAnswer").value);
+
+      if (!question || options.includes("") || isNaN(correct)) {
+        alert("সব তথ্য পূরণ করুন");
+        return;
+      }
+
+      const q = {
+        question: question,
+        options: options,
+        correctAnswerIndex: correct - 1
+      };
+
+      questions.push(q);
+      displayQuestions();
+      closeModal(); // ✅ সংরক্ষণের পর পপআপ বন্ধ হবে
+    }
+
+    function displayQuestions() {
+      const list = document.getElementById("questionList");
+      list.innerHTML = "";
+      questions.forEach((q, i) => {
+        list.innerHTML += `
+          <div class="question">
+            <strong>প্রশ্ন ${i + 1}:</strong> ${q.question}<br>
+            ${q.options.map((opt, j) => `${j + 1}. ${opt}${j === q.correctAnswerIndex ? " ✅" : ""}`).join("<br>")}
+          </div>
+        `;
+      });
+    }
+
+    function clearForm() {
+      document.getElementById("questionText").value = "";
+      document.getElementById("option1").value = "";
+      document.getElementById("option2").value = "";
+      document.getElementById("option3").value = "";
+      document.getElementById("option4").value = "";
+      document.getElementById("correctAnswer").value = "";
+    }
+
+    function downloadJSON() {
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(questions, null, 2));
+      const a = document.createElement('a');
+      a.setAttribute("href", dataStr);
+      a.setAttribute("download", "questions.json");
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+    }
+  </script>
+
 </body>
 </html>
