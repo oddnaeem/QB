@@ -1,232 +1,192 @@
-<!DOCTYPE html><html lang="bn">
+<!DOCTYPE html>
+<html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>প্রশ্নব্যাংক</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
     body {
-      font-size: 1.5rem;
+      background: #fafafa;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      margin: 0;
+      padding: 20px;
+      color: #222;
     }
-    .fab-container {
-      position: fixed;
-      bottom: 30px;
-      right: 20px;
-      display: flex;
-      flex-direction: column;
-      gap: 15px;
-      z-index: 1050;
+    .container {
+      max-width: 720px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      padding: 30px 40px;
     }
-    .fab-button {
-      width: 80px;
-      height: 80px;
-      border-radius: 50%;
-      font-size: 36px;
-      padding: 0;
-      line-height: 80px;
+    header {
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+      margin-bottom: 30px;
+    }
+    header h1 {
+      font-size: 32px;
+      color: #007BFF;
+      margin-bottom: 6px;
+    }
+    header p {
+      font-size: 16px;
+      color: #555;
+    }
+    .question-block {
+      margin-bottom: 28px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #eee;
+    }
+    .question-number {
+      font-weight: 700;
+      font-size: 18px;
+      color: #333;
+      margin-bottom: 8px;
+    }
+    .question-text {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 14px;
+      line-height: 1.3;
+    }
+    ul.options {
+      list-style: none;
+      padding-left: 0;
+    }
+    ul.options li {
+      background: #f1f3f5;
+      margin-bottom: 10px;
+      padding: 10px 18px;
+      border-radius: 6px;
+      font-size: 16px;
+      cursor: default;
       user-select: none;
+      transition: background 0.3s ease;
     }
-    input.form-control,
-    select.form-select {
-      font-size: 1.4rem;
-      padding: 1rem;
+    ul.options li:hover {
+      background: #d0e7ff;
     }
-    button.btn {
-      font-size: 1.4rem;
-      padding: 0.75rem 1.5rem;
+    .answer {
+      margin-top: 8px;
+      font-weight: 700;
+      color: #28a745;
+      font-size: 16px;
     }
-    .modal-title {
-      font-size: 1.6rem;
-    }
-    @media (max-width: 576px) {
-      .modal-dialog {
-        margin: 1rem;
-        max-width: 100%;
-        height: 90vh;
+    @media (max-width: 640px) {
+      .container {
+        padding: 20px 25px;
       }
-      .modal-content {
-        height: 100%;
-        overflow-y: auto;
+      header h1 {
+        font-size: 26px;
       }
-      .fab-button {
-        width: 70px;
-        height: 70px;
-        font-size: 32px;
-        line-height: 70px;
+      .question-text {
+        font-size: 18px;
+      }
+      ul.options li {
+        font-size: 15px;
       }
     }
   </style>
 </head>
-<body class="bg-light">
-  <div class="container py-4">
-    <h2 class="text-center mb-4">প্রশ্নব্যাংক</h2>
-    <div id="questionList" class="row gy-4"></div>
-    <div class="text-center mt-4">
-      <button class="btn btn-danger" onclick="clearAll()">সব প্রশ্ন মুছে ফেলুন</button>
-    </div>
-  </div>  <div class="fab-container">
-    <button class="btn btn-primary fab-button" title="প্রশ্ন তৈরি" data-bs-toggle="modal" data-bs-target="#questionModal">
-      <i class="bi bi-plus"></i>
-    </button>
-    <button class="btn btn-success fab-button" title="ডাউনলোড" onclick="downloadJSON()">
-      <i class="bi bi-download"></i>
-    </button>
-    <button class="btn btn-warning fab-button" title="আপলোড" onclick="document.getElementById('jsonFileInput').click()">
-      <i class="bi bi-upload"></i>
-    </button>
-  </div>  <input type="file" id="jsonFileInput" accept=".json" style="display: none" onchange="uploadJSON()" />  <div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="questionModalLabel">নতুন প্রশ্ন যোগ করুন</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="clearForm()"></button>
-        </div>
-        <div class="modal-body">
-          <input type="text" class="form-control mb-3" id="questionText" placeholder="প্রশ্ন লিখুন" />
-          <input type="text" class="form-control mb-3" id="option1" placeholder="অপশন ১" />
-          <input type="text" class="form-control mb-3" id="option2" placeholder="অপশন ২" />
-          <input type="text" class="form-control mb-3" id="option3" placeholder="অপশন ৩" />
-          <input type="text" class="form-control mb-3" id="option4" placeholder="অপশন ৪" />
-          <select class="form-select mb-3" id="correctAnswer">
-            <option value="" disabled selected>সঠিক উত্তর নির্বাচন করুন</option>
-            <option value="1">অপশন ১</option>
-            <option value="2">অপশন ২</option>
-            <option value="3">অপশন ৩</option>
-            <option value="4">অপশন ৪</option>
-          </select>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">বাতিল</button>
-          <button type="button" class="btn btn-primary" onclick="addQuestion()">সংরক্ষণ</button>
-        </div>
-      </div>
-    </div>
-  </div>  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>  <script>
-    const questions = [];
+<body>
+  <div class="container">
+    <header>
+      <h1>প্রশ্নব্যাংক</h1>
+      <p>তোমার প্রস্তুতির জন্য গুরুত্বপূর্ণ প্রশ্নগুলো</p>
+    </header>
 
-    window.addEventListener("DOMContentLoaded", () => {
-      const saved = localStorage.getItem("questions");
-      if (saved) {
-        try {
-          const parsed = JSON.parse(saved);
-          if (Array.isArray(parsed)) {
-            parsed.forEach(q => questions.push(q));
-            displayQuestions();
-          }
-        } catch (e) {
-          console.error("Invalid localStorage data");
-        }
+    <div id="questionsContainer"></div>
+  </div>
+
+  <script>
+    const questions = [
+      {
+        question: "A হল B এর দক্ষিণে, B হল C এর পশ্চিমে। তাহলে A, C এর কোনদিকে থাকবে?",
+        options: ["দক্ষিণে", "উত্তর-পশ্চিমে", "উত্তর-পূর্বে", "দক্ষিণ-পশ্চিমে"],
+        answer: "দক্ষিণে"
+      },
+      {
+        question: "প্রতি ঘণ্টায় কতবার ঘড়ির মিনিটের এবং ঘণ্টার কাঁটা পরস্পর লম্বভাবে অবস্থান করে?",
+        options: ["2 বার", "1 বার", "4 বার", "৩ বার"],
+        answer: "2 বার"
+      },
+      {
+        question: "এক ব্যক্তি ও তার স্ত্রীর সাত ছেলে আছে। প্রত্যেক ছেলের একজন করে বোন থাকলে ঐ পরিবারের সদস্য সংখ্যা কত?",
+        options: ["৪ জন", "১০ জন", "১৬ জন", "৯ জন"],
+        answer: "১০ জন"
+      },
+      {
+        question: "৫০টি বলের মধ্যে ৩৫টিতে লাল দাগ, ২০টিতে নীল দাগ এবং ১২টিতে লাল ও নীল উভয় দাগ রয়েছে। কতটি বলের লাল বা নীল দাগ নেই?",
+        options: ["৫", "৮", "৭", "৪"],
+        answer: "৫"
+      },
+      {
+        question: "তিনটি সংখ্যার যোগফল ৯৮। প্রথম ও দ্বিতীয় সংখ্যার অনুপাত ২:৩ এবং দ্বিতীয় ও তৃতীয় সংখ্যার অনুপাত ৫:৮। দ্বিতীয় সংখ্যাটি-",
+        options: ["৩০", "১০", "১৫", "২৪"],
+        answer: "৩০"
+      },
+      {
+        question: "একটি বাক্সে ৫টি লাল এবং ৩টি নীল বল আছে। একটা বল অন্ধকারে তোলা হলে বলটির লাল হওয়ার সম্ভাবনা কত?",
+        options: ["৫/৮", "৩/৮", "১/২", "১/৪"],
+        answer: "৫/৮"
+      },
+      {
+        question: "যদি f(x) = 2x + 3 হয়, তাহলে f(4) কত?",
+        options: ["11", "8", "14", "7"],
+        answer: "11"
+      },
+      {
+        question: "3 এবং 5 এর LCM কত?",
+        options: ["15", "8", "10", "30"],
+        answer: "15"
+      },
+      {
+        question: "7 এর বর্গমূল কত?",
+        options: ["2.64", "3", "2.5", "3.5"],
+        answer: "2.64"
+      },
+      {
+        question: "একটি ঘড়ির ঘণ্টা এবং মিনিটের কাঁটার মধ্যে কোন সময়ের দূরত্ব সর্বনিম্ন?",
+        options: ["3:15", "6:30", "9:45", "12:00"],
+        answer: "3:15"
       }
+    ];
+
+    const container = document.getElementById('questionsContainer');
+
+    questions.forEach((q, idx) => {
+      const block = document.createElement('div');
+      block.className = 'question-block';
+
+      const qNumber = document.createElement('div');
+      qNumber.className = 'question-number';
+      qNumber.textContent = `প্রশ্ন ${idx + 1}`;
+
+      const qText = document.createElement('div');
+      qText.className = 'question-text';
+      qText.textContent = q.question;
+
+      const optionsList = document.createElement('ul');
+      optionsList.className = 'options';
+
+      q.options.forEach((opt, i) => {
+        const li = document.createElement('li');
+        li.textContent = `${String.fromCharCode(65 + i)}. ${opt}`;
+        optionsList.appendChild(li);
+      });
+
+      const ansDiv = document.createElement('div');
+      ansDiv.className = 'answer';
+      ansDiv.textContent = `সঠিক উত্তর: ${q.answer}`;
+
+      block.appendChild(qNumber);
+      block.appendChild(qText);
+      block.appendChild(optionsList);
+      block.appendChild(ansDiv);
+
+      container.appendChild(block);
     });
-
-    function saveToLocalStorage() {
-      localStorage.setItem("questions", JSON.stringify(questions));
-    }
-
-    function addQuestion() {
-      const question = document.getElementById("questionText").value.trim();
-      const options = [
-        document.getElementById("option1").value.trim(),
-        document.getElementById("option2").value.trim(),
-        document.getElementById("option3").value.trim(),
-        document.getElementById("option4").value.trim()
-      ];
-      const correct = parseInt(document.getElementById("correctAnswer").value);
-
-      if (!question || options.includes("") || isNaN(correct)) {
-        alert("অনুগ্রহ করে সব তথ্য দিন।");
-        return;
-      }
-
-      questions.push({ question, options, correctAnswerIndex: correct - 1 });
-      saveToLocalStorage();
-      displayQuestions();
-      bootstrap.Modal.getInstance(document.getElementById("questionModal")).hide();
-      clearForm();
-    }
-
-    function displayQuestions() {
-      const list = document.getElementById("questionList");
-      list.innerHTML = "";
-      questions.forEach((q, i) => {
-        const card = `
-          <div class="col-12">
-            <div class="card shadow-sm">
-              <div class="card-body">
-                <h5 class="card-title">প্রশ্ন ${i + 1}</h5>
-                <p class="card-text">${q.question}</p>
-                <ul class="list-group list-group-flush">
-                  ${q.options.map((opt, j) => `
-                    <li class="list-group-item ${j === q.correctAnswerIndex ? "list-group-item-success" : ""}">
-                      ${j + 1}. ${opt} ${j === q.correctAnswerIndex ? "(সঠিক)" : ""}
-                    </li>`).join("")}
-                </ul>
-              </div>
-            </div>
-          </div>
-        `;
-        list.innerHTML += card;
-      });
-    }
-
-    function clearForm() {
-      ["questionText", "option1", "option2", "option3", "option4"].forEach(id => {
-        document.getElementById(id).value = "";
-      });
-      document.getElementById("correctAnswer").value = "";
-    }
-
-    function downloadJSON() {
-      if (questions.length === 0) {
-        alert("প্রথমে কিছু প্রশ্ন যোগ করুন।");
-        return;
-      }
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(questions, null, 2));
-      const a = document.createElement("a");
-      a.href = dataStr;
-      a.download = "questions.json";
-      document.body.appendChild(a);
-      a.click();
-      a.remove();
-    }
-
-    function uploadJSON() {
-      const input = document.getElementById("jsonFileInput");
-      const file = input.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = function (e) {
-        try {
-          const loadedQuestions = JSON.parse(e.target.result);
-          if (Array.isArray(loadedQuestions)) {
-            for (const q of loadedQuestions) {
-              if (typeof q.question === "string" && Array.isArray(q.options) && typeof q.correctAnswerIndex === "number") {
-                questions.push(q);
-              }
-            }
-            saveToLocalStorage();
-            displayQuestions();
-            alert("প্রশ্নগুলো সফলভাবে আপলোড হয়েছে!");
-          } else {
-            alert("ফাইল ফরম্যাট ভুল!");
-          }
-        } catch {
-          alert("JSON ফাইল পড়তে সমস্যা হয়েছে!");
-        }
-      };
-      reader.readAsText(file);
-    }
-
-    function clearAll() {
-      if (confirm("সব প্রশ্ন মুছে ফেলতে চান?")) {
-        questions.length = 0;
-        localStorage.removeItem("questions");
-        displayQuestions();
-      }
-    }
   </script>
 </body>
 </html>
