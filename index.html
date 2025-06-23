@@ -1,15 +1,13 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html><html lang="bn">
 <head>
   <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>প্রশ্নব্যাংক</title>
-  <!-- Bootstrap 5 CSS -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-  <!-- Bootstrap Icons -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet" />
   <style>
     body {
-      font-size: 1.25rem; /* পুরো পেজের ফন্ট বড় */
+      font-size: 1.5rem;
     }
     .fab-container {
       position: fixed;
@@ -21,25 +19,28 @@
       z-index: 1050;
     }
     .fab-button {
-      width: 70px;
-      height: 70px;
+      width: 80px;
+      height: 80px;
       border-radius: 50%;
-      font-size: 32px;
+      font-size: 36px;
       padding: 0;
-      line-height: 70px;
+      line-height: 80px;
       text-align: center;
-      box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
       user-select: none;
     }
-
-    /* ইনপুট, সিলেক্ট বড় */
     input.form-control,
     select.form-select {
-      font-size: 1.25rem;
-      padding: 0.5rem 1rem;
+      font-size: 1.4rem;
+      padding: 1rem;
     }
-
-    /* মডাল বড় এবং স্ক্রলেবল মোবাইলে */
+    button.btn {
+      font-size: 1.4rem;
+      padding: 0.75rem 1.5rem;
+    }
+    .modal-title {
+      font-size: 1.6rem;
+    }
     @media (max-width: 576px) {
       .modal-dialog {
         margin: 1rem;
@@ -51,90 +52,46 @@
         overflow-y: auto;
       }
       .fab-button {
-        width: 65px;
-        height: 65px;
-        font-size: 28px;
-        line-height: 65px;
+        width: 70px;
+        height: 70px;
+        font-size: 32px;
+        line-height: 70px;
       }
     }
   </style>
 </head>
 <body class="bg-light">
-
   <div class="container py-4">
     <h2 class="text-center mb-4">প্রশ্নব্যাংক</h2>
-    <div id="questionList" class="row gy-3"></div>
-  </div>
-
-  <!-- Floating Action Buttons -->
-  <div class="fab-container">
-    <button
-      class="btn btn-primary fab-button"
-      title="প্রশ্ন তৈরি"
-      data-bs-toggle="modal"
-      data-bs-target="#questionModal"
-    >
+    <div id="questionList" class="row gy-4"></div>
+    <div class="text-center mt-4">
+      <button class="btn btn-danger" onclick="clearAll()">সব প্রশ্ন মুছে ফেলুন</button>
+    </div>
+  </div>  <div class="fab-container">
+    <button class="btn btn-primary fab-button" title="প্রশ্ন তৈরি" data-bs-toggle="modal" data-bs-target="#questionModal">
       <i class="bi bi-plus"></i>
     </button>
     <button class="btn btn-success fab-button" title="ডাউনলোড" onclick="downloadJSON()">
       <i class="bi bi-download"></i>
     </button>
-  </div>
-
-  <!-- প্রশ্ন তৈরি Modal -->
-  <div
-    class="modal fade"
-    id="questionModal"
-    tabindex="-1"
-    aria-labelledby="questionModalLabel"
-    aria-hidden="true"
-  >
+    <button class="btn btn-warning fab-button" title="আপলোড" onclick="document.getElementById('jsonFileInput').click()">
+      <i class="bi bi-upload"></i>
+    </button>
+  </div>  <input type="file" id="jsonFileInput" accept=".json" style="display: none" onchange="uploadJSON()" />  <div class="modal fade" id="questionModal" tabindex="-1" aria-labelledby="questionModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
       <div class="modal-content">
         <div class="modal-header">
           <h5 class="modal-title" id="questionModalLabel">নতুন প্রশ্ন যোগ করুন</h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-            onclick="clearForm()"
-          ></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="clearForm()"></button>
         </div>
         <div class="modal-body">
-          <input
-            type="text"
-            class="form-control mb-3"
-            id="questionText"
-            placeholder="প্রশ্ন লিখুন"
-          />
-          <input
-            type="text"
-            class="form-control mb-3"
-            id="option1"
-            placeholder="অপশন ১"
-          />
-          <input
-            type="text"
-            class="form-control mb-3"
-            id="option2"
-            placeholder="অপশন ২"
-          />
-          <input
-            type="text"
-            class="form-control mb-3"
-            id="option3"
-            placeholder="অপশন ৩"
-          />
-          <input
-            type="text"
-            class="form-control mb-3"
-            id="option4"
-            placeholder="অপশন ৪"
-          />
-
-          <select class="form-select" id="correctAnswer" aria-label="সঠিক উত্তর নির্বাচন করুন">
-            <option value="" selected disabled>সঠিক উত্তর নির্বাচন করুন</option>
+          <input type="text" class="form-control mb-3" id="questionText" placeholder="প্রশ্ন লিখুন" />
+          <input type="text" class="form-control mb-3" id="option1" placeholder="অপশন ১" />
+          <input type="text" class="form-control mb-3" id="option2" placeholder="অপশন ২" />
+          <input type="text" class="form-control mb-3" id="option3" placeholder="অপশন ৩" />
+          <input type="text" class="form-control mb-3" id="option4" placeholder="অপশন ৪" />
+          <select class="form-select mb-3" id="correctAnswer">
+            <option value="" disabled selected>সঠিক উত্তর নির্বাচন করুন</option>
             <option value="1">অপশন ১</option>
             <option value="2">অপশন ২</option>
             <option value="3">অপশন ৩</option>
@@ -142,27 +99,32 @@
           </select>
         </div>
         <div class="modal-footer">
-          <button
-            type="button"
-            class="btn btn-secondary btn-lg"
-            data-bs-dismiss="modal"
-            onclick="clearForm()"
-          >
-            বাতিল
-          </button>
-          <button type="button" class="btn btn-primary btn-lg" onclick="addQuestion()">
-            সংরক্ষণ
-          </button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" onclick="clearForm()">বাতিল</button>
+          <button type="button" class="btn btn-primary" onclick="addQuestion()">সংরক্ষণ</button>
         </div>
       </div>
     </div>
-  </div>
-
-  <!-- Bootstrap JS + Popper -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-  <script>
+  </div>  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>  <script>
     const questions = [];
+
+    window.addEventListener("DOMContentLoaded", () => {
+      const saved = localStorage.getItem("questions");
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved);
+          if (Array.isArray(parsed)) {
+            parsed.forEach(q => questions.push(q));
+            displayQuestions();
+          }
+        } catch (e) {
+          console.error("Invalid localStorage data");
+        }
+      }
+    });
+
+    function saveToLocalStorage() {
+      localStorage.setItem("questions", JSON.stringify(questions));
+    }
 
     function addQuestion() {
       const question = document.getElementById("questionText").value.trim();
@@ -170,7 +132,7 @@
         document.getElementById("option1").value.trim(),
         document.getElementById("option2").value.trim(),
         document.getElementById("option3").value.trim(),
-        document.getElementById("option4").value.trim(),
+        document.getElementById("option4").value.trim()
       ];
       const correct = parseInt(document.getElementById("correctAnswer").value);
 
@@ -179,19 +141,10 @@
         return;
       }
 
-      const q = {
-        question: question,
-        options: options,
-        correctAnswerIndex: correct - 1,
-      };
-
-      questions.push(q);
+      questions.push({ question, options, correctAnswerIndex: correct - 1 });
+      saveToLocalStorage();
       displayQuestions();
-
-      const modal = bootstrap.Modal.getInstance(
-        document.getElementById("questionModal")
-      );
-      modal.hide();
+      bootstrap.Modal.getInstance(document.getElementById("questionModal")).hide();
       clearForm();
     }
 
@@ -206,20 +159,10 @@
                 <h5 class="card-title">প্রশ্ন ${i + 1}</h5>
                 <p class="card-text">${q.question}</p>
                 <ul class="list-group list-group-flush">
-                  ${q.options
-                    .map(
-                      (opt, j) =>
-                        `<li class="list-group-item ${
-                          j === q.correctAnswerIndex
-                            ? "list-group-item-success"
-                            : ""
-                        }">
-                          ${j + 1}. ${opt} ${
-                          j === q.correctAnswerIndex ? "(সঠিক)" : ""
-                        }
-                        </li>`
-                    )
-                    .join("")}
+                  ${q.options.map((opt, j) => `
+                    <li class="list-group-item ${j === q.correctAnswerIndex ? "list-group-item-success" : ""}">
+                      ${j + 1}. ${opt} ${j === q.correctAnswerIndex ? "(সঠিক)" : ""}
+                    </li>`).join("")}
                 </ul>
               </div>
             </div>
@@ -230,11 +173,9 @@
     }
 
     function clearForm() {
-      document.getElementById("questionText").value = "";
-      document.getElementById("option1").value = "";
-      document.getElementById("option2").value = "";
-      document.getElementById("option3").value = "";
-      document.getElementById("option4").value = "";
+      ["questionText", "option1", "option2", "option3", "option4"].forEach(id => {
+        document.getElementById(id).value = "";
+      });
       document.getElementById("correctAnswer").value = "";
     }
 
@@ -243,16 +184,48 @@
         alert("প্রথমে কিছু প্রশ্ন যোগ করুন।");
         return;
       }
-
-      const dataStr =
-        "data:text/json;charset=utf-8," +
-        encodeURIComponent(JSON.stringify(questions, null, 2));
+      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(questions, null, 2));
       const a = document.createElement("a");
-      a.setAttribute("href", dataStr);
-      a.setAttribute("download", "questions.json");
+      a.href = dataStr;
+      a.download = "questions.json";
       document.body.appendChild(a);
       a.click();
       a.remove();
+    }
+
+    function uploadJSON() {
+      const input = document.getElementById("jsonFileInput");
+      const file = input.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function (e) {
+        try {
+          const loadedQuestions = JSON.parse(e.target.result);
+          if (Array.isArray(loadedQuestions)) {
+            for (const q of loadedQuestions) {
+              if (typeof q.question === "string" && Array.isArray(q.options) && typeof q.correctAnswerIndex === "number") {
+                questions.push(q);
+              }
+            }
+            saveToLocalStorage();
+            displayQuestions();
+            alert("প্রশ্নগুলো সফলভাবে আপলোড হয়েছে!");
+          } else {
+            alert("ফাইল ফরম্যাট ভুল!");
+          }
+        } catch {
+          alert("JSON ফাইল পড়তে সমস্যা হয়েছে!");
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function clearAll() {
+      if (confirm("সব প্রশ্ন মুছে ফেলতে চান?")) {
+        questions.length = 0;
+        localStorage.removeItem("questions");
+        displayQuestions();
+      }
     }
   </script>
 </body>
