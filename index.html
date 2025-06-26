@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html><html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -86,12 +85,14 @@
     .options label:hover {
       background: #e0e0e0;
     }
-    .feedback {
-      font-weight: bold;
-      margin-top: 8px;
+    .explanation {
+      margin-top: 10px;
+      padding: 10px;
+      background: #f9f9f9;
+      border-left: 4px solid #2ecc71;
+      font-style: italic;
+      border-radius: 6px;
     }
-    .correct { color: green; }
-    .incorrect { color: red; }
     #timer {
       text-align: center;
       font-size: 20px;
@@ -111,9 +112,7 @@
   </style>
 </head>
 <body>
-  <header>
-    📝 বাংলা বাগধারা MCQ পরীক্ষা
-  </header>
+  <header>📝 বাংলা বাগধারা MCQ পরীক্ষা</header>
   <div class="container">
     <section id="startSection" class="start-section active">
       <div class="form-group">
@@ -129,164 +128,139 @@
       <div class="form-group">
         <button onclick="startExam()">পরীক্ষা শুরু করো</button>
       </div>
-    </section>
+    </section><section id="quizSection" class="quiz-section">
+  <div id="timer"></div>
+  <form id="quizForm"></form>
+  <button id="submitBtn" disabled onclick="submitExam()" type="button">উত্তর জমা দাও</button>
+  <div id="result"></div>
+</section>
 
-    <section id="quizSection" class="quiz-section">
-      <div id="timer"></div>
-      <form id="quizForm"></form>
-      <button id="submitBtn" disabled onclick="submitExam()" type="button">উত্তর জমা দাও</button>
-      <div id="result"></div>
-    </section>
-  </div>
+  </div>  <script>
+    let allQuestions = [];
+    let selectedQuestions = [];
+    let timeLeft = 60;
+    let timerInterval;
+    let score = 0;
+    let attempted = 0;
+    const NEGATIVE_MARK = 0.5;
 
-<script>
-  let allQuestions = [];
-  let selectedQuestions = [];
-  let attempted = 0;
-  let score = 0;
-  let timeLeft = 0;
-  let timerInterval;
-  const NEGATIVE_MARK = 0.5;
-
-  async function loadQuestions() {
-    try {
-      const res = await fetch('Data.json');
-      if (!res.ok) throw new Error('প্রশ্ন লোডে সমস্যা হয়েছে');
-      allQuestions = await res.json();
-    } catch (e) {
-      alert('প্রশ্ন লোড করতে সমস্যা: ' + e.message);
-      allQuestions = [];
-    }
-  }
-
-  function shuffleArray(arr) {
-    return arr.map(a => [Math.random(), a]).sort((a,b) => a[0] - b[0]).map(a => a[1]);
-  }
-
-  function formatTime(sec) {
-    const h = Math.floor(sec / 3600);
-    const m = Math.floor((sec % 3600) / 60);
-    const s = sec % 60;
-    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
-  }
-
-  function getUnusedIndexes(total, usedIndexes, maxIndex) {
-    const allIndexes = Array.from({length: maxIndex}, (_, i) => i);
-    const available = allIndexes.filter(i => !usedIndexes.includes(i));
-    return shuffleArray(available).slice(0, total);
-  }
-
-  async function startExam() {
-    await loadQuestions();
-    if(allQuestions.length === 0){
-      alert('প্রশ্ন পাওয়া যায়নি।');
-      return;
-    }
-    const h = parseInt(document.getElementById("h").value) || 0;
-    const m = parseInt(document.getElementById("m").value) || 0;
-    const s = parseInt(document.getElementById("s").value) || 0;
-    timeLeft = h*3600 + m*60 + s;
-    if(timeLeft < 10){
-      alert('সময় কমপক্ষে 10 সেকেন্ড হতে হবে।');
-      return;
+    async function loadQuestions() {
+      try {
+        const response = await fetch('Data.json');
+        if (!response.ok) throw new Error('JSON লোড করতে সমস্যা হয়েছে');
+        allQuestions = await response.json();
+      } catch (err) {
+        alert('প্রশ্ন লোড করতে সমস্যা: ' + err.message);
+        allQuestions = [];
+      }
     }
 
-    let total = parseInt(document.getElementById("qCount").value) || 30;
-    if(total < 1) total = 1;
-    if(total > allQuestions.length) total = allQuestions.length;
-
-    const usedIndexes = JSON.parse(localStorage.getItem("usedIndexes") || "[]");
-    let newIndexes = getUnusedIndexes(total, usedIndexes, allQuestions.length);
-
-    if(newIndexes.length < total){
-      localStorage.removeItem("usedIndexes");
-      newIndexes = getUnusedIndexes(total, [], allQuestions.length);
+    function shuffleArray(array) {
+      return array.sort(() => Math.random() - 0.5);
     }
 
-    selectedQuestions = newIndexes.map(i => allQuestions[i]);
-    localStorage.setItem("usedIndexes", JSON.stringify([...usedIndexes, ...newIndexes]));
+    function saveProgress() {
+      localStorage.setItem('mcq_exam_data', JSON.stringify({ score, attempted }));
+    }
 
-    attempted = 0;
-    score = 0;
+    function startExam() {
+      const h = parseInt(document.getElementById("h").value) || 0;
+      const m = parseInt(document.getElementById("m").value) || 0;
+      const s = parseInt(document.getElementById("s").value) || 0;
+      const qCount = parseInt(document.getElementById("qCount").value) || 10;
+      timeLeft = h * 3600 + m * 60 + s;
 
-    document.getElementById("startSection").classList.remove("active");
-    document.getElementById("quizSection").classList.add("active");
-    document.getElementById("result").textContent = "";
+      loadQuestions().then(() => {
+        if (allQuestions.length === 0) {
+          alert('প্রশ্ন পাওয়া যায়নি।');
+          return;
+        }
 
-    renderQuestions();
-    startTimer();
-  }
-
-  function renderQuestions() {
-    const form = document.getElementById("quizForm");
-    form.innerHTML = "";
-
-    selectedQuestions.forEach((q, i) => {
-      const div = document.createElement("div");
-      div.className = "question";
-      div.innerHTML = `<div class='question-title'>${i+1}. ${q.question}</div>`;
-
-      const optionsDiv = document.createElement("div");
-      optionsDiv.className = "options";
-
-      shuffleArray(q.options).forEach(opt => {
-        const label = document.createElement("label");
-        label.innerHTML = `<input type="radio" name="q${i}" value="${opt}"> ${opt}`;
-
-        label.querySelector("input").addEventListener("change", () => {
-          checkAllAnswered();
-        });
-
-        optionsDiv.appendChild(label);
+        selectedQuestions = shuffleArray([...allQuestions]).slice(0, qCount);
+        score = 0;
+        attempted = 0;
+        document.getElementById("startSection").classList.remove("active");
+        document.getElementById("quizSection").classList.add("active");
+        renderQuestions();
+        startTimer();
       });
-
-      div.appendChild(optionsDiv);
-      form.appendChild(div);
-    });
-
-    checkAllAnswered();
-  }
-
-  function checkAllAnswered() {
-    const total = selectedQuestions.length;
-    let answered = 0;
-    for(let i=0; i<total; i++){
-      if(document.querySelector(`input[name='q${i}']:checked`)) answered++;
     }
-    document.getElementById("submitBtn").disabled = answered !== total;
-  }
 
-  function submitExam() {
-    clearInterval(timerInterval);
-    evaluateExam();
-  }
+    function renderQuestions() {
+      const form = document.getElementById("quizForm");
+      form.innerHTML = "";
 
-  function evaluateExam() {
-    const form = document.getElementById("quizForm");
-    const questions = form.querySelectorAll(".question");
+      selectedQuestions.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.className = "question";
+        div.innerHTML = `<div class='question-title'>${i + 1}. ${q.question}</div>`;
 
-    selectedQuestions.forEach((q, i) => {
-      const inputs = document.querySelectorAll(`input[name='q${i}']`);
-      let selected = null;
-      inputs.forEach(input => {
-        input.disabled = true;
-        if (input.checked) selected = input.value;
-        input.parentElement.style.backgroundColor = '';
-        input.parentElement.style.color = '';
-        input.parentElement.style.fontWeight = 'normal';
-      });
+        const optionsDiv = document.createElement("div");
+        optionsDiv.className = "options";
+        shuffleArray(q.options).forEach(opt => {
+          const label = document.createElement("label");
+          label.innerHTML = `<input type="radio" name="q${i}" value="${opt}"> ${opt}`;
+          const input = label.querySelector("input");
 
-      if (selected) {
-        if (selected === q.answer) {
-          score++;
-          inputs.forEach(input => {
-            if (input.value === q.answer) {
-              input.parentElement.style.backgroundColor = '#d4edda';
-              input.parentElement.style.color = '#155724';
-              input.parentElement.style.fontWeight = 'bold';
+          input.addEventListener("change", () => {
+            attempted++;
+            saveProgress();
+            if (document.querySelectorAll('input[type="radio"]:checked').length === selectedQuestions.length) {
+              document.getElementById("submitBtn").disabled = false;
             }
           });
-        } else {
+          optionsDiv.appendChild(label);
+        });
+        div.appendChild(optionsDiv);
+        form.appendChild(div);
+      });
+    }
+
+    function formatTime(s) {
+      const h = Math.floor(s / 3600);
+      const m = Math.floor((s % 3600) / 60);
+      const sec = s % 60;
+      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${sec.toString().padStart(2, '0')}`;
+    }
+
+    function startTimer() {
+      const t = document.getElementById("timer");
+      t.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        t.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          submitExam();
+        }
+      }, 1000);
+    }
+
+    function submitExam() {
+      clearInterval(timerInterval);
+      const form = document.getElementById("quizForm");
+      const questions = form.querySelectorAll(".question");
+
+      selectedQuestions.forEach((q, i) => {
+        const inputs = document.querySelectorAll(`input[name='q${i}']`);
+        let selected = null;
+        inputs.forEach(input => {
+          input.disabled = true;
+          if (input.checked) selected = input.value;
+          input.parentElement.style.backgroundColor = '';
+          input.parentElement.style.color = '';
+          input.parentElement.style.fontWeight = 'normal';
+        });
+
+        inputs.forEach(input => {
+          if (input.value === q.answer) {
+            input.parentElement.style.backgroundColor = '#d4edda';
+            input.parentElement.style.color = '#155724';
+            input.parentElement.style.fontWeight = 'bold';
+          }
+        });
+
+        if (selected && selected !== q.answer) {
           score -= NEGATIVE_MARK;
           inputs.forEach(input => {
             if (input.checked) {
@@ -295,30 +269,21 @@
               input.parentElement.style.fontWeight = 'bold';
             }
           });
+        } else if (selected === q.answer) {
+          score++;
         }
-      } 
-      // উত্তর না হলে কোনো হাইলাইট নেই
-    });
 
-    document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
-    document.getElementById("submitBtn").disabled = true;
-  }
+        if (q.explain) {
+          const explanation = document.createElement("div");
+          explanation.className = "explanation";
+          explanation.textContent = `ব্যাখ্যা: ${q.explain}`;
+          questions[i].appendChild(explanation);
+        }
+      });
 
-  function startTimer() {
-    const timerDisplay = document.getElementById("timer");
-    timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
-
-    timerInterval = setInterval(() => {
-      timeLeft--;
-      timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
-      if(timeLeft <= 0){
-        clearInterval(timerInterval);
-        alert("সময় শেষ!");
-        submitExam();
-      }
-    }, 1000);
-  }
-</script>
-
-</body>
+      localStorage.removeItem('mcq_exam_data');
+      document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
+      document.getElementById("submitBtn").disabled = true;
+    }
+  </script></body>
 </html>
