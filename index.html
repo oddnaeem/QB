@@ -148,7 +148,6 @@
   let timerInterval;
   const NEGATIVE_MARK = 0.5;
 
-  // প্রশ্নগুলো JSON থেকে লোড করা
   async function loadQuestions() {
     try {
       const res = await fetch('Data.json');
@@ -160,12 +159,10 @@
     }
   }
 
-  // এলোমেলো করার ফাংশন
   function shuffleArray(arr) {
     return arr.map(a => [Math.random(), a]).sort((a,b) => a[0] - b[0]).map(a => a[1]);
   }
 
-  // সময়কে ঘঃমি:সে ফরম্যাটে দেখানোর ফাংশন
   function formatTime(sec) {
     const h = Math.floor(sec / 3600);
     const m = Math.floor((sec % 3600) / 60);
@@ -173,14 +170,12 @@
     return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
   }
 
-  // LocalStorage থেকে আগের ব্যবহার হওয়া প্রশ্নের ইনডেক্স নেওয়া ও নতুন প্রশ্ন বাছাই
   function getUnusedIndexes(total, usedIndexes, maxIndex) {
     const allIndexes = Array.from({length: maxIndex}, (_, i) => i);
     const available = allIndexes.filter(i => !usedIndexes.includes(i));
     return shuffleArray(available).slice(0, total);
   }
 
-  // পরীক্ষা শুরু করার ফাংশন
   async function startExam() {
     await loadQuestions();
     if(allQuestions.length === 0){
@@ -200,19 +195,15 @@
     if(total < 1) total = 1;
     if(total > allQuestions.length) total = allQuestions.length;
 
-    // LocalStorage থেকে আগের প্রশ্নের ইনডেক্স নিয়ে আসা
     const usedIndexes = JSON.parse(localStorage.getItem("usedIndexes") || "[]");
     let newIndexes = getUnusedIndexes(total, usedIndexes, allQuestions.length);
 
-    // যদি আগের প্রশ্নের সংখ্যা কমে যায়, তাহলে LocalStorage রিসেট
     if(newIndexes.length < total){
       localStorage.removeItem("usedIndexes");
       newIndexes = getUnusedIndexes(total, [], allQuestions.length);
     }
 
     selectedQuestions = newIndexes.map(i => allQuestions[i]);
-
-    // নতুন ইনডেক্সগুলো LocalStorage তে সেভ করা
     localStorage.setItem("usedIndexes", JSON.stringify([...usedIndexes, ...newIndexes]));
 
     attempted = 0;
@@ -220,12 +211,12 @@
 
     document.getElementById("startSection").classList.remove("active");
     document.getElementById("quizSection").classList.add("active");
+    document.getElementById("result").textContent = "";
 
     renderQuestions();
     startTimer();
   }
 
-  // প্রশ্ন ও অপশন রেন্ডার করা
   function renderQuestions() {
     const form = document.getElementById("quizForm");
     form.innerHTML = "";
@@ -256,7 +247,6 @@
     checkAllAnswered();
   }
 
-  // সব প্রশ্নে উত্তর দেয়া হয়েছে কিনা চেক করে সাবমিট বাটন এনেবল/ডিসেবল করবে
   function checkAllAnswered() {
     const total = selectedQuestions.length;
     let answered = 0;
@@ -266,13 +256,11 @@
     document.getElementById("submitBtn").disabled = answered !== total;
   }
 
-  // সাবমিট করার ফাংশন
   function submitExam() {
     clearInterval(timerInterval);
     evaluateExam();
   }
 
-  // পরীক্ষা শেষ করে মার্ক ও ফিডব্যাক দেখানো
   function evaluateExam() {
     const form = document.getElementById("quizForm");
     const questions = form.querySelectorAll(".question");
@@ -282,36 +270,40 @@
       let selected = null;
       inputs.forEach(input => {
         input.disabled = true;
-        if(input.checked) selected = input.value;
+        if (input.checked) selected = input.value;
+        input.parentElement.style.backgroundColor = '';
+        input.parentElement.style.color = '';
+        input.parentElement.style.fontWeight = 'normal';
       });
 
-      const feedback = document.createElement("div");
-      feedback.className = "feedback";
-
-      if(selected){
-        if(selected === q.answer){
+      if (selected) {
+        if (selected === q.answer) {
           score++;
-          feedback.textContent = "✅ সঠিক উত্তর!";
-          feedback.classList.add("correct");
+          inputs.forEach(input => {
+            if (input.value === q.answer) {
+              input.parentElement.style.backgroundColor = '#d4edda';
+              input.parentElement.style.color = '#155724';
+              input.parentElement.style.fontWeight = 'bold';
+            }
+          });
         } else {
           score -= NEGATIVE_MARK;
-          feedback.textContent = `❌ ভুল! সঠিক উত্তর: ${q.answer} | -${NEGATIVE_MARK}`;
-          feedback.classList.add("incorrect");
+          inputs.forEach(input => {
+            if (input.checked) {
+              input.parentElement.style.backgroundColor = '#f8d7da';
+              input.parentElement.style.color = '#721c24';
+              input.parentElement.style.fontWeight = 'bold';
+            }
+          });
         }
-      } else {
-        feedback.textContent = `⏰ আপনি উত্তর দেননি। সঠিক উত্তর: ${q.answer}`;
-        feedback.classList.add("incorrect");
-      }
-
-      questions[i].appendChild(feedback);
+      } 
+      // উত্তর না হলে কোনো হাইলাইট নেই
     });
 
-    // দশমিক দুই ঘর পর্যন্ত স্কোর দেখানো
     document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
     document.getElementById("submitBtn").disabled = true;
   }
 
-  // টাইমার ফাংশন
   function startTimer() {
     const timerDisplay = document.getElementById("timer");
     timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
@@ -327,5 +319,6 @@
     }, 1000);
   }
 </script>
+
 </body>
 </html>
