@@ -1,0 +1,120 @@
+<!DOCTYPE html><html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>MCQ JSON Generator</title>
+  <style>
+    body {
+      font-family: 'Noto Sans Bengali', sans-serif;
+      background-color: #f4f4f4;
+      padding: 20px;
+    }
+    .container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: #fff;
+      padding: 20px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    input, textarea, select, button {
+      width: 100%;
+      padding: 10px;
+      margin: 10px 0;
+      font-size: 16px;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    button {
+      background-color: #3498db;
+      color: white;
+      cursor: pointer;
+    }
+    button:hover {
+      background-color: #2980b9;
+    }
+    pre {
+      background: #ecf0f1;
+      padding: 15px;
+      border-radius: 8px;
+      overflow-x: auto;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>📄 MCQ JSON Generator</h2><label>প্রশ্ন:</label>
+<textarea id="question" rows="2" placeholder="প্রশ্ন লিখুন"></textarea>
+
+<label>অপশন ১:</label>
+<input type="text" id="opt1" placeholder="অপশন ১ লিখুন">
+<label>অপশন ২:</label>
+<input type="text" id="opt2" placeholder="অপশন ২ লিখুন">
+<label>অপশন ৩ (ঐচ্ছিক):</label>
+<input type="text" id="opt3" placeholder="অপশন ৩ লিখুন">
+<label>অপশন ৪ (ঐচ্ছিক):</label>
+<input type="text" id="opt4" placeholder="অপশন ৪ লিখুন">
+<label>অপশন ৫ (ঐচ্ছিক):</label>
+<input type="text" id="opt5" placeholder="অপশন ৫ লিখুন">
+
+<label>সঠিক উত্তর:</label>
+<input type="text" id="correct" placeholder="যেকোনো একটি উপরের অপশন কপি করে পেস্ট করুন">
+
+<button onclick="addQuestion()">➕ প্রশ্ন যোগ করুন</button>
+
+<h3>📋 প্রস্তুত JSON:</h3>
+<pre id="output">[]</pre>
+<button onclick="copyJSON()">📋 কপি JSON</button>
+<button onclick="downloadJSON()">⬇️ ডাউনলোড JSON</button>
+
+  </div>  <script>
+    let questions = [];
+
+    function addQuestion() {
+      const question = document.getElementById('question').value.trim();
+      const options = [
+        document.getElementById('opt1').value.trim(),
+        document.getElementById('opt2').value.trim(),
+        document.getElementById('opt3').value.trim(),
+        document.getElementById('opt4').value.trim(),
+        document.getElementById('opt5').value.trim()
+      ].filter(opt => opt);
+
+      const answer = document.getElementById('correct').value.trim();
+
+      if (!question || options.length < 2 || !answer || !options.includes(answer)) {
+        alert('সর্বনিম্ন ২টি অপশন এবং সঠিক উত্তর দিতে হবে, যা অপশনগুলোর মধ্যে থাকতে হবে।');
+        return;
+      }
+
+      questions.push({ question, options, answer });
+      document.getElementById('output').textContent = JSON.stringify(questions, null, 2);
+
+      // Clear form
+      document.getElementById('question').value = "";
+      document.getElementById('opt1').value = "";
+      document.getElementById('opt2').value = "";
+      document.getElementById('opt3').value = "";
+      document.getElementById('opt4').value = "";
+      document.getElementById('opt5').value = "";
+      document.getElementById('correct').value = "";
+    }
+
+    function copyJSON() {
+      const text = document.getElementById('output').textContent;
+      navigator.clipboard.writeText(text)
+        .then(() => alert('✅ JSON কপি হয়েছে!'))
+        .catch(() => alert('❌ কপি করতে সমস্যা হয়েছে।'));
+    }
+
+    function downloadJSON() {
+      const blob = new Blob([JSON.stringify(questions, null, 2)], { type: 'application/json' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = 'Data.json';
+      link.click();
+      URL.revokeObjectURL(url);
+    }
+  </script></body>
+</html>
