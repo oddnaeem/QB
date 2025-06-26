@@ -47,18 +47,20 @@
 <textarea id="question" rows="2" placeholder="প্রশ্ন লিখুন"></textarea>
 
 <label>অপশন ১:</label>
-<input type="text" id="opt1" placeholder="অপশন ১ লিখুন">
+<input type="text" id="opt1" placeholder="অপশন ১ লিখুন" oninput="updateAnswerOptions()">
 <label>অপশন ২:</label>
-<input type="text" id="opt2" placeholder="অপশন ২ লিখুন">
+<input type="text" id="opt2" placeholder="অপশন ২ লিখুন" oninput="updateAnswerOptions()">
 <label>অপশন ৩ (ঐচ্ছিক):</label>
-<input type="text" id="opt3" placeholder="অপশন ৩ লিখুন">
+<input type="text" id="opt3" placeholder="অপশন ৩ লিখুন" oninput="updateAnswerOptions()">
 <label>অপশন ৪ (ঐচ্ছিক):</label>
-<input type="text" id="opt4" placeholder="অপশন ৪ লিখুন">
+<input type="text" id="opt4" placeholder="অপশন ৪ লিখুন" oninput="updateAnswerOptions()">
 <label>অপশন ৫ (ঐচ্ছিক):</label>
-<input type="text" id="opt5" placeholder="অপশন ৫ লিখুন">
+<input type="text" id="opt5" placeholder="অপশন ৫ লিখুন" oninput="updateAnswerOptions()">
 
-<label>সঠিক উত্তর:</label>
-<input type="text" id="correct" placeholder="যেকোনো একটি উপরের অপশন কপি করে পেস্ট করুন">
+<label>সঠিক উত্তর (নিচের তালিকা থেকে বেছে নিন):</label>
+<select id="correct">
+  <option value="">-- একটি সঠিক উত্তর বেছে নিন --</option>
+</select>
 
 <button onclick="addQuestion()">➕ প্রশ্ন যোগ করুন</button>
 
@@ -70,6 +72,26 @@
   </div>  <script>
     let questions = [];
 
+    function updateAnswerOptions() {
+      const options = [
+        document.getElementById('opt1').value.trim(),
+        document.getElementById('opt2').value.trim(),
+        document.getElementById('opt3').value.trim(),
+        document.getElementById('opt4').value.trim(),
+        document.getElementById('opt5').value.trim()
+      ].filter(opt => opt);
+
+      const correctSelect = document.getElementById('correct');
+      correctSelect.innerHTML = '<option value="">-- একটি সঠিক উত্তর বেছে নিন --</option>';
+
+      options.forEach(opt => {
+        const option = document.createElement('option');
+        option.value = opt;
+        option.textContent = opt;
+        correctSelect.appendChild(option);
+      });
+    }
+
     function addQuestion() {
       const question = document.getElementById('question').value.trim();
       const options = [
@@ -80,10 +102,10 @@
         document.getElementById('opt5').value.trim()
       ].filter(opt => opt);
 
-      const answer = document.getElementById('correct').value.trim();
+      const answer = document.getElementById('correct').value;
 
       if (!question || options.length < 2 || !answer || !options.includes(answer)) {
-        alert('সর্বনিম্ন ২টি অপশন এবং সঠিক উত্তর দিতে হবে, যা অপশনগুলোর মধ্যে থাকতে হবে।');
+        alert('সর্বনিম্ন ২টি অপশন এবং একটি সঠিক উত্তর দিতে হবে, যা অপশনগুলোর মধ্যে থাকতে হবে।');
         return;
       }
 
@@ -97,7 +119,7 @@
       document.getElementById('opt3').value = "";
       document.getElementById('opt4').value = "";
       document.getElementById('opt5').value = "";
-      document.getElementById('correct').value = "";
+      document.getElementById('correct').innerHTML = '<option value="">-- একটি সঠিক উত্তর বেছে নিন --</option>';
     }
 
     function copyJSON() {
