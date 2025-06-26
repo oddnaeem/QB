@@ -46,6 +46,7 @@
       width: 80px;
       border-radius: 8px;
       border: 1px solid #ccc;
+      text-align: center;
     }
     button {
       background-color: #3498db;
@@ -56,9 +57,14 @@
       border-radius: 8px;
       cursor: pointer;
       transition: background-color 0.3s ease;
+      margin-top: 20px;
+      display: block;
+      margin-left: auto;
+      margin-right: auto;
     }
-    button:hover {
-      background-color: #2980b9;
+    button:disabled {
+      background-color: #95a5a6;
+      cursor: not-allowed;
     }
     .question {
       margin-bottom: 20px;
@@ -113,8 +119,8 @@
       <div class="form-group">
         <label>⏱️ সময় (ঘণ্টা:মিনিট:সেকেন্ড):</label><br>
         <input type="number" id="h" value="0" min="0"> :
-        <input type="number" id="m" value="3" min="0"> :
-        <input type="number" id="s" value="0" min="0">
+        <input type="number" id="m" value="3" min="0" max="59"> :
+        <input type="number" id="s" value="0" min="0" max="59">
       </div>
       <div class="form-group">
         <label>প্রশ্ন সংখ্যা:</label><br>
@@ -123,137 +129,203 @@
       <div class="form-group">
         <button onclick="startExam()">পরীক্ষা শুরু করো</button>
       </div>
-    </section><section id="quizSection" class="quiz-section">
-  <div id="timer"></div>
-  <form id="quizForm"></form>
-  <div id="result"></div>
-</section>
+    </section>
 
-  </div>  <script>
-    let allQuestions = [], selectedQuestions = [], attempted = 0, score = 0, timeLeft = 0, timerInterval;
-    const NEGATIVE_MARK = 0.5;
+    <section id="quizSection" class="quiz-section">
+      <div id="timer"></div>
+      <form id="quizForm"></form>
+      <button id="submitBtn" disabled onclick="submitExam()" type="button">উত্তর জমা দাও</button>
+      <div id="result"></div>
+    </section>
+  </div>
 
-    async function loadQuestions() {
+<script>
+  let allQuestions = [];
+  let selectedQuestions = [];
+  let attempted = 0;
+  let score = 0;
+  let timeLeft = 0;
+  let timerInterval;
+  const NEGATIVE_MARK = 0.5;
+
+  // প্রশ্নগুলো JSON থেকে লোড করা
+  async function loadQuestions() {
+    try {
       const res = await fetch('Data.json');
+      if (!res.ok) throw new Error('প্রশ্ন লোডে সমস্যা হয়েছে');
       allQuestions = await res.json();
+    } catch (e) {
+      alert('প্রশ্ন লোড করতে সমস্যা: ' + e.message);
+      allQuestions = [];
+    }
+  }
+
+  // এলোমেলো করার ফাংশন
+  function shuffleArray(arr) {
+    return arr.map(a => [Math.random(), a]).sort((a,b) => a[0] - b[0]).map(a => a[1]);
+  }
+
+  // সময়কে ঘঃমি:সে ফরম্যাটে দেখানোর ফাংশন
+  function formatTime(sec) {
+    const h = Math.floor(sec / 3600);
+    const m = Math.floor((sec % 3600) / 60);
+    const s = sec % 60;
+    return `${h.toString().padStart(2,'0')}:${m.toString().padStart(2,'0')}:${s.toString().padStart(2,'0')}`;
+  }
+
+  // LocalStorage থেকে আগের ব্যবহার হওয়া প্রশ্নের ইনডেক্স নেওয়া ও নতুন প্রশ্ন বাছাই
+  function getUnusedIndexes(total, usedIndexes, maxIndex) {
+    const allIndexes = Array.from({length: maxIndex}, (_, i) => i);
+    const available = allIndexes.filter(i => !usedIndexes.includes(i));
+    return shuffleArray(available).slice(0, total);
+  }
+
+  // পরীক্ষা শুরু করার ফাংশন
+  async function startExam() {
+    await loadQuestions();
+    if(allQuestions.length === 0){
+      alert('প্রশ্ন পাওয়া যায়নি।');
+      return;
+    }
+    const h = parseInt(document.getElementById("h").value) || 0;
+    const m = parseInt(document.getElementById("m").value) || 0;
+    const s = parseInt(document.getElementById("s").value) || 0;
+    timeLeft = h*3600 + m*60 + s;
+    if(timeLeft < 10){
+      alert('সময় কমপক্ষে 10 সেকেন্ড হতে হবে।');
+      return;
     }
 
-    function shuffleArray(arr) {
-      return arr.map(a => [Math.random(), a]).sort().map(a => a[1]);
+    let total = parseInt(document.getElementById("qCount").value) || 30;
+    if(total < 1) total = 1;
+    if(total > allQuestions.length) total = allQuestions.length;
+
+    // LocalStorage থেকে আগের প্রশ্নের ইনডেক্স নিয়ে আসা
+    const usedIndexes = JSON.parse(localStorage.getItem("usedIndexes") || "[]");
+    let newIndexes = getUnusedIndexes(total, usedIndexes, allQuestions.length);
+
+    // যদি আগের প্রশ্নের সংখ্যা কমে যায়, তাহলে LocalStorage রিসেট
+    if(newIndexes.length < total){
+      localStorage.removeItem("usedIndexes");
+      newIndexes = getUnusedIndexes(total, [], allQuestions.length);
     }
 
-    function formatTime(sec) {
-      const h = Math.floor(sec / 3600);
-      const m = Math.floor((sec % 3600) / 60);
-      const s = sec % 60;
-      return `${h.toString().padStart(2, '0')}:${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}`;
-    }
+    selectedQuestions = newIndexes.map(i => allQuestions[i]);
 
-    function getUnusedIndexes(total, usedIndexes, maxIndex) {
-      const allIndexes = Array.from({ length: maxIndex }, (_, i) => i);
-      const available = allIndexes.filter(i => !usedIndexes.includes(i));
-      return shuffleArray(available).slice(0, total);
-    }
+    // নতুন ইনডেক্সগুলো LocalStorage তে সেভ করা
+    localStorage.setItem("usedIndexes", JSON.stringify([...usedIndexes, ...newIndexes]));
 
-    async function startExam() {
-      await loadQuestions();
-      const h = parseInt(document.getElementById("h").value) || 0;
-      const m = parseInt(document.getElementById("m").value) || 0;
-      const s = parseInt(document.getElementById("s").value) || 0;
-      timeLeft = h * 3600 + m * 60 + s;
+    attempted = 0;
+    score = 0;
 
-      const total = parseInt(document.getElementById("qCount").value) || 30;
+    document.getElementById("startSection").classList.remove("active");
+    document.getElementById("quizSection").classList.add("active");
 
-      const usedIndexes = JSON.parse(localStorage.getItem("usedIndexes") || "[]");
-      let newIndexes = getUnusedIndexes(total, usedIndexes, allQuestions.length);
+    renderQuestions();
+    startTimer();
+  }
 
-      if (newIndexes.length < total) {
-        localStorage.removeItem("usedIndexes");
-        newIndexes = getUnusedIndexes(total, [], allQuestions.length);
-      }
+  // প্রশ্ন ও অপশন রেন্ডার করা
+  function renderQuestions() {
+    const form = document.getElementById("quizForm");
+    form.innerHTML = "";
 
-      selectedQuestions = newIndexes.map(i => allQuestions[i]);
-      localStorage.setItem("usedIndexes", JSON.stringify([...usedIndexes, ...newIndexes]));
+    selectedQuestions.forEach((q, i) => {
+      const div = document.createElement("div");
+      div.className = "question";
+      div.innerHTML = `<div class='question-title'>${i+1}. ${q.question}</div>`;
 
-      attempted = 0;
-      score = 0;
+      const optionsDiv = document.createElement("div");
+      optionsDiv.className = "options";
 
-      document.getElementById("startSection").classList.remove("active");
-      document.getElementById("quizSection").classList.add("active");
-      renderQuestions();
-      startTimer();
-    }
+      shuffleArray(q.options).forEach(opt => {
+        const label = document.createElement("label");
+        label.innerHTML = `<input type="radio" name="q${i}" value="${opt}"> ${opt}`;
 
-    function renderQuestions() {
-      const form = document.getElementById("quizForm");
-      form.innerHTML = "";
-
-      selectedQuestions.forEach((q, i) => {
-        const div = document.createElement("div");
-        div.className = "question";
-        div.innerHTML = `<div class='question-title'>${i + 1}. ${q.question}</div>`;
-
-        const optionsDiv = document.createElement("div");
-        optionsDiv.className = "options";
-
-        shuffleArray(q.options).forEach(opt => {
-          const label = document.createElement("label");
-          label.innerHTML = `<input type="radio" name="q${i}" value="${opt}"> ${opt}`;
-          optionsDiv.appendChild(label);
+        label.querySelector("input").addEventListener("change", () => {
+          checkAllAnswered();
         });
 
-        div.appendChild(optionsDiv);
-        form.appendChild(div);
+        optionsDiv.appendChild(label);
       });
+
+      div.appendChild(optionsDiv);
+      form.appendChild(div);
+    });
+
+    checkAllAnswered();
+  }
+
+  // সব প্রশ্নে উত্তর দেয়া হয়েছে কিনা চেক করে সাবমিট বাটন এনেবল/ডিসেবল করবে
+  function checkAllAnswered() {
+    const total = selectedQuestions.length;
+    let answered = 0;
+    for(let i=0; i<total; i++){
+      if(document.querySelector(`input[name='q${i}']:checked`)) answered++;
     }
+    document.getElementById("submitBtn").disabled = answered !== total;
+  }
 
-    function startTimer() {
-      const timerDisplay = document.getElementById("timer");
-      timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
+  // সাবমিট করার ফাংশন
+  function submitExam() {
+    clearInterval(timerInterval);
+    evaluateExam();
+  }
 
-      timerInterval = setInterval(() => {
-        timeLeft--;
-        timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
-        if (timeLeft <= 0) {
-          clearInterval(timerInterval);
-          evaluateExam();
-        }
-      }, 1000);
-    }
+  // পরীক্ষা শেষ করে মার্ক ও ফিডব্যাক দেখানো
+  function evaluateExam() {
+    const form = document.getElementById("quizForm");
+    const questions = form.querySelectorAll(".question");
 
-    function evaluateExam() {
-      const form = document.getElementById("quizForm");
-      const questions = form.querySelectorAll(".question");
-      selectedQuestions.forEach((q, i) => {
-        const inputs = document.querySelectorAll(`input[name='q${i}']`);
-        let selected = null;
-        inputs.forEach(input => {
-          input.disabled = true;
-          if (input.checked) selected = input.value;
-        });
+    selectedQuestions.forEach((q, i) => {
+      const inputs = document.querySelectorAll(`input[name='q${i}']`);
+      let selected = null;
+      inputs.forEach(input => {
+        input.disabled = true;
+        if(input.checked) selected = input.value;
+      });
 
-        const feedback = document.createElement("div");
-        feedback.className = "feedback";
+      const feedback = document.createElement("div");
+      feedback.className = "feedback";
 
-        if (selected) {
-          if (selected === q.answer) {
-            score++;
-            feedback.textContent = "✅ সঠিক উত্তর!";
-            feedback.classList.add("correct");
-          } else {
-            score -= NEGATIVE_MARK;
-            feedback.textContent = `❌ ভুল! সঠিক: ${q.answer} | -${NEGATIVE_MARK}`;
-            feedback.classList.add("incorrect");
-          }
+      if(selected){
+        if(selected === q.answer){
+          score++;
+          feedback.textContent = "✅ সঠিক উত্তর!";
+          feedback.classList.add("correct");
         } else {
-          feedback.textContent = `⏰ আপনি উত্তর দেননি। সঠিক: ${q.answer}`;
+          score -= NEGATIVE_MARK;
+          feedback.textContent = `❌ ভুল! সঠিক উত্তর: ${q.answer} | -${NEGATIVE_MARK}`;
           feedback.classList.add("incorrect");
         }
+      } else {
+        feedback.textContent = `⏰ আপনি উত্তর দেননি। সঠিক উত্তর: ${q.answer}`;
+        feedback.classList.add("incorrect");
+      }
 
-        questions[i].appendChild(feedback);
-      });
+      questions[i].appendChild(feedback);
+    });
 
-      document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
-    }
-  </script></body>
+    // দশমিক দুই ঘর পর্যন্ত স্কোর দেখানো
+    document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
+    document.getElementById("submitBtn").disabled = true;
+  }
+
+  // টাইমার ফাংশন
+  function startTimer() {
+    const timerDisplay = document.getElementById("timer");
+    timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
+
+    timerInterval = setInterval(() => {
+      timeLeft--;
+      timerDisplay.textContent = `⏳ টাইমার: ${formatTime(timeLeft)}`;
+      if(timeLeft <= 0){
+        clearInterval(timerInterval);
+        alert("সময় শেষ!");
+        submitExam();
+      }
+    }, 1000);
+  }
+</script>
+</body>
 </html>
