@@ -560,5 +560,16 @@
     "answer": "১০৮°",
     "explain": "",
 		"subject":"Math"
+  },{
+    "subject": "ICT",
+    "question": "মৌলিক গেট কয়টি ?",
+    "options": [
+      "১টি",
+      "২টি",
+      "৩টি",
+      "৪টি"
+    ],
+    "answer": "৩টি",
+    "explain": "AND, OR, এবং NOT গেট"
   }
 ]
