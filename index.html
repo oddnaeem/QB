@@ -18,14 +18,43 @@
     .question-title {
       font-weight: bold;
     }
+    .option-label {
+      display: block;
+      padding: 6px 10px;
+      border-radius: 5px;
+      margin-bottom: 5px;
+      cursor: pointer;
+      user-select: none;
+      border: 1px solid transparent;
+      transition: background-color 0.3s, border-color 0.3s;
+    }
+    .option-label:hover {
+      background-color: #e9ecef;
+    }
     .correct {
-      background-color: #d4edda !important; /* হালকা সবুজ */
+      background-color: #d4edda !important;
+      border-color: #28a745 !important;
+      color: #155724;
+      font-weight: 600;
     }
     .incorrect {
-      background-color: #f8d7da !important; /* হালকা লাল */
+      background-color: #f8d7da !important;
+      border-color: #dc3545 !important;
+      color: #721c24;
+      font-weight: 600;
     }
     .explanation {
       margin-top: 10px;
+      padding: 10px;
+      background-color: #d1ecf1;
+      color: #0c5460;
+      border-radius: 5px;
+      border: 1px solid #bee5eb;
+      font-size: 0.9rem;
+    }
+    .disabled {
+      pointer-events: none;
+      opacity: 0.7;
     }
   </style>
 </head>
@@ -34,11 +63,9 @@
     <div class="text-center mb-4">
       <h2 class="fw-bold">বিশ্ববিদ্যালয় ভর্তি প্রস্তুতি ২০২৫-২৬</h2>
     </div>
-
     <section id="startSection" class="start-section">
       <div class="mb-3">
-        <label class="form-label">প্রশ্ন সংখ্যা:</label>
-        <input type="number" id="qCount" class="form-control" value="25" readonly />
+        <label class="form-label">প্রশ্ন সংখ্যা: <span id="totalQuestions">২৫</span></label>
       </div>
       <div class="text-center">
         <button onclick="startExam()" class="btn btn-primary">প্র‍্যাকটিস শুরু কর</button>
@@ -52,6 +79,6 @@
     </section>
   </div>
 
-  <script src="main.js"></script>
+  <script src="script.js"></script>
 </body>
 </html>
