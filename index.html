@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>বাগধারা MCQ পরীক্ষা</title>
+  <title>উন্মুক্ত প্রশ্নব্যাংক</title>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Bengali&display=swap" rel="stylesheet">
   <style>
     body {
@@ -112,21 +112,21 @@
   </style>
 </head>
 <body>
-  <header>📝 বাংলা বাগধারা MCQ পরীক্ষা</header>
+  <header>বিশ্ববিদ্যালয় ভর্তি প্রস্তুতি ২০২৫-২৬</header>
   <div class="container">
     <section id="startSection" class="start-section active">
       <div class="form-group">
-        <label>⏱️ সময় (ঘণ্টা:মিনিট:সেকেন্ড):</label><br>
+        <label>⏱️ সময় (ঘণ্টা - মিনিট - সেকেন্ড):</label><br>
         <input type="number" id="h" value="0" min="0"> :
         <input type="number" id="m" value="3" min="0" max="59"> :
         <input type="number" id="s" value="0" min="0" max="59">
       </div>
       <div class="form-group">
         <label>প্রশ্ন সংখ্যা:</label><br>
-        <input type="number" id="qCount" value="30" min="1" max="100">
+        <input type="number" id="qCount" value="30" min="1" max="25">
       </div>
       <div class="form-group">
-        <button onclick="startExam()">পরীক্ষা শুরু করো</button>
+        <button onclick="startExam()">প্র‍্যাকটিজ শুরু কর</button>
       </div>
     </section><section id="quizSection" class="quiz-section">
   <div id="timer"></div>
@@ -142,7 +142,7 @@
     let timerInterval;
     let score = 0;
     let attempted = 0;
-    const NEGATIVE_MARK = 0.5;
+    const NEGATIVE_MARK = 0.25;
 
     async function loadQuestions() {
       try {
@@ -282,7 +282,7 @@
       });
 
       localStorage.removeItem('mcq_exam_data');
-      document.getElementById("result").textContent = `🎯 আপনার স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}`;
+      document.getElementById("result").textContent = `Score: ${score.toFixed(2)} / ${selectedQuestions.length}`;
       document.getElementById("submitBtn").disabled = true;
     }
   </script></body>
