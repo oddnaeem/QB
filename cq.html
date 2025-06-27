@@ -1,5 +1,4 @@
-<!DOCTYPE html>
-<html lang="bn">
+<!DOCTYPE html><html lang="bn">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -9,67 +8,76 @@
 <body class="bg-light">
   <div class="container my-4">
     <div class="card shadow p-4">
-      <h2 class="mb-3">📄 MCQ JSON Generator</h2>
+      <h2 class="mb-3">📄 MCQ JSON Generator</h2><div class="mb-3">
+    <label class="form-label">বিষয় (Subject):</label>
+    <select id="subject" class="form-select">
+      <option value="">-- একটি বিষয় নির্বাচন করুন --</option>
+      <option value="Bangla">Bangla</option>
+      <option value="English">English</option>
+      <option value="GK">GK</option>
+      <option value="Math">Math</option>
+      <option value="ICT">ICT</option>
+    </select>
+  </div>
 
-      <div class="mb-3">
-        <label class="form-label">প্রশ্ন:</label>
-        <textarea id="question" class="form-control" rows="2" placeholder="প্রশ্ন লিখুন"></textarea>
-      </div>
+  <div class="mb-3">
+    <label class="form-label">প্রশ্ন:</label>
+    <textarea id="question" class="form-control" rows="2" placeholder="প্রশ্ন লিখুন"></textarea>
+  </div>
 
-      <div class="mb-3">
-        <label class="form-label">ব্যাখ্যা (Explain):</label>
-        <textarea id="explain" class="form-control" rows="2" placeholder="এই প্রশ্নের ব্যাখ্যা লিখুন (ঐচ্ছিক)"></textarea>
-      </div>
+  <div class="mb-3">
+    <label class="form-label">ব্যাখ্যা (Explain):</label>
+    <textarea id="explain" class="form-control" rows="2" placeholder="এই প্রশ্নের ব্যাখ্যা লিখুন (ঐচ্ছিক)"></textarea>
+  </div>
 
-      <div class="row g-2">
-        <div class="col-md-6">
-          <label class="form-label">অপশন ১:</label>
-          <input type="text" id="opt1" class="form-control" oninput="updateAnswerOptions()" />
-        </div>
-        <div class="col-md-6">
-          <label class="form-label">অপশন ২:</label>
-          <input type="text" id="opt2" class="form-control" oninput="updateAnswerOptions()" />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">অপশন ৩:</label>
-          <input type="text" id="opt3" class="form-control" oninput="updateAnswerOptions()" />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">অপশন ৪:</label>
-          <input type="text" id="opt4" class="form-control" oninput="updateAnswerOptions()" />
-        </div>
-        <div class="col-md-4">
-          <label class="form-label">অপশন ৫:</label>
-          <input type="text" id="opt5" class="form-control" oninput="updateAnswerOptions()" />
-        </div>
-      </div>
-
-      <div class="mt-3">
-        <label class="form-label">সঠিক উত্তর:</label>
-        <select id="correct" class="form-select">
-          <option value="">-- একটি সঠিক উত্তর বেছে নিন --</option>
-        </select>
-      </div>
-
-      <button class="btn btn-primary mt-3" onclick="addQuestion()">➕ প্রশ্ন যোগ করুন</button>
-
-      <h4 class="mt-5">📋 JSON আউটপুট:</h4>
-      <pre id="output" class="bg-light p-3 border rounded">[]</pre>
-      <div class="d-flex flex-wrap gap-2 mb-4">
-        <button class="btn btn-outline-success" onclick="copyJSON()">📋 কপি JSON</button>
-        <button class="btn btn-outline-primary" onclick="downloadJSON()">📤 Export JSON</button>
-        <button class="btn btn-outline-primary" onclick="showPreview()">🔎 প্রিভিউ</button>
-        <button class="btn btn-danger" onclick="resetAll()">🗑️ সব মুছুন</button>
-        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)" />
-        <button class="btn btn-outline-primary" onclick="document.getElementById('importFile').click()">📥 Import JSON</button>
-      </div>
-
-      <h4>লাইভ প্রিভিউ:</h4>
-      <div id="preview" class="bg-white border p-3 rounded" style="display:none;"></div>
+  <div class="row g-2">
+    <div class="col-md-6">
+      <label class="form-label">অপশন ১:</label>
+      <input type="text" id="opt1" class="form-control" oninput="updateAnswerOptions()" />
+    </div>
+    <div class="col-md-6">
+      <label class="form-label">অপশন ২:</label>
+      <input type="text" id="opt2" class="form-control" oninput="updateAnswerOptions()" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">অপশন ৩:</label>
+      <input type="text" id="opt3" class="form-control" oninput="updateAnswerOptions()" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">অপশন ৪:</label>
+      <input type="text" id="opt4" class="form-control" oninput="updateAnswerOptions()" />
+    </div>
+    <div class="col-md-4">
+      <label class="form-label">অপশন ৫:</label>
+      <input type="text" id="opt5" class="form-control" oninput="updateAnswerOptions()" />
     </div>
   </div>
 
-  <script>
+  <div class="mt-3">
+    <label class="form-label">সঠিক উত্তর:</label>
+    <select id="correct" class="form-select">
+      <option value="">-- একটি সঠিক উত্তর বেছে নিন --</option>
+    </select>
+  </div>
+
+  <button class="btn btn-primary mt-3" onclick="addQuestion()">➕ প্রশ্ন যোগ করুন</button>
+
+  <h4 class="mt-5">📋 JSON আউটপুট:</h4>
+  <pre id="output" class="bg-light p-3 border rounded">[]</pre>
+  <div class="d-flex flex-wrap gap-2 mb-4">
+    <button class="btn btn-outline-success" onclick="copyJSON()">📋 কপি JSON</button>
+    <button class="btn btn-outline-primary" onclick="downloadJSON()">📤 Export JSON</button>
+    <button class="btn btn-outline-primary" onclick="showPreview()">🔎 প্রিভিউ</button>
+    <button class="btn btn-danger" onclick="resetAll()">🗑️ সব মুছুন</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(event)" />
+    <button class="btn btn-outline-primary" onclick="document.getElementById('importFile').click()">📥 Import JSON</button>
+  </div>
+
+  <h4>লাইভ প্রিভিউ:</h4>
+  <div id="preview" class="bg-white border p-3 rounded" style="display:none;"></div>
+</div>
+
+  </div>  <script>
     let questions = [];
 
     function updateAnswerOptions() {
@@ -88,26 +96,24 @@
     }
 
     function addQuestion() {
+      const subject = document.getElementById("subject").value;
       const question = document.getElementById("question").value.trim();
       const explain = document.getElementById("explain").value.trim();
       const ids = ["opt1", "opt2", "opt3", "opt4", "opt5"];
       const options = ids.map(id => document.getElementById(id).value.trim()).filter(Boolean);
       const answer = document.getElementById("correct").value;
 
-      if (!question || options.length < 2 || !answer || !options.includes(answer)) {
-        alert("সর্বনিম্ন ২টি অপশন এবং একটি সঠিক উত্তর দিতে হবে।");
+      if (!subject || !question || options.length < 2 || !answer || !options.includes(answer)) {
+        alert("বিষয়, প্রশ্ন, ২টি অপশন এবং সঠিক উত্তর আবশ্যক।");
         return;
       }
 
-      questions.push({ question, options, answer, explain });
+      questions.push({ subject, question, options, answer, explain });
       document.getElementById("output").textContent = JSON.stringify(questions, null, 2);
       localStorage.setItem("mcqData", JSON.stringify(questions));
 
-      // ফর্ম ক্লিয়ার
-      ["question", "explain", ...ids].forEach(id => document.getElementById(id).value = "");
+      ["subject", "question", "explain", ...ids].forEach(id => document.getElementById(id).value = "");
       updateAnswerOptions();
-
-      // প্রিভিউ হাইড রাখব যতক্ষণ না ইউজার চায় দেখবে
       document.getElementById("preview").style.display = "none";
     }
 
@@ -120,7 +126,7 @@
 
       preview.innerHTML = questions.map((q, i) => `
         <div class="mb-3">
-          <strong>প্রশ্ন ${i + 1}:</strong> ${q.question}
+          <strong>প্রশ্ন ${i + 1} (${q.subject}):</strong> ${q.question}
           <ol type="A">
             ${q.options.map(opt =>
               `<li class="${opt === q.answer ? 'text-success fw-bold' : ''}">${opt}</li>`
@@ -184,7 +190,6 @@
           localStorage.setItem("mcqData", JSON.stringify(questions));
           document.getElementById("output").textContent = JSON.stringify(questions, null, 2);
 
-          // প্রিভিউ ডিফল্টে লুকানো থাকবে, ইউজার চাইলে দেখাবে
           const preview = document.getElementById("preview");
           preview.style.display = "none";
           preview.innerHTML = "";
@@ -202,9 +207,7 @@
       if (saved) {
         questions = JSON.parse(saved);
         document.getElementById("output").textContent = JSON.stringify(questions, null, 2);
-        // প্রিভিউ লোডে দেখাব না
       }
     };
-  </script>
-</body>
+  </script></body>
 </html>
