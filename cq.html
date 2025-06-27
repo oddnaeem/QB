@@ -108,7 +108,7 @@
         return;
       }
 
-      questions.push({ subject, question, options, answer, explain });
+      questions.push({ question, options, answer,subject, explain });
       document.getElementById("output").textContent = JSON.stringify(questions, null, 2);
       localStorage.setItem("mcqData", JSON.stringify(questions));
 
