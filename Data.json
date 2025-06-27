@@ -561,7 +561,6 @@
     "explain": "",
 		"subject":"Math"
   },{
-    "subject": "ICT",
     "question": "মৌলিক গেট কয়টি ?",
     "options": [
       "১টি",
@@ -569,8 +568,9 @@
       "৩টি",
       "৪টি"
     ],
-    "answer": "৩টি",
-    "explain": "AND, OR, এবং NOT গেট"
+ "answer": "৩টি",	
+"subject": "ICT",
+ "explain": "AND, OR, এবং NOT গেট"
   },{
     "question": "সি ভাষায় float ডেটা টাইপ কত বিটের?",
     "options": [
