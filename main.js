@@ -6,7 +6,7 @@ const NEGATIVE_MARK = 0.25;
 // প্রশ্ন JSON ফাইল থেকে লোড করবে
 async function loadQuestions() {
   try {
-    const response = await fetch('data.json');
+    const response = await fetch('Data.json');
     if (!response.ok) throw new Error('JSON লোড করতে সমস্যা হয়েছে');
     allQuestions = await response.json();
   } catch (err) {
