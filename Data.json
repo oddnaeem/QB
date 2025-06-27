@@ -571,5 +571,16 @@
     ],
     "answer": "৩টি",
     "explain": "AND, OR, এবং NOT গেট"
+  },{
+    "question": "সি ভাষায় float ডেটা টাইপ কত বিটের?",
+    "options": [
+      "৪",
+      "২",
+      "১৬",
+      "৩২"
+    ],
+    "answer": "৩২",
+    "subject": "ICT",
+    "explain": ""
   }
 ]
