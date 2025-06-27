@@ -100,4 +100,3 @@ if (q.explain) {
 });
 
 document.getElementById("result").textContent = মোট স্কোর: ${score.toFixed(2)} / ${selectedQuestions.length}; document.getElementById("submitBtn").disabled = true; }
-
